@@ -16,6 +16,8 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Check out the release commit
+        uses: actions/checkout@v7
       - name: Create and publish a complete release
         run: |
           printf 'Facade chained release asset\n' > FacadeDemo-2.0.0-linux-x64.tar.gz
