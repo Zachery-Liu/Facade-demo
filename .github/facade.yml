@@ -1,0 +1,4 @@
+schema: 1
+repository: Zachery-Liu/Facade-demo
+release:
+  strategy: github-latest

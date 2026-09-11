@@ -1,0 +1,74 @@
+name: Validate Facade standalone Pages publishing
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      delay_seconds:
+        description: Seconds to wait before building; used only to test cancellation.
+        required: false
+        default: '0'
+      base_path:
+        description: Optional test override for Pages base path; an invalid value proves recovery.
+        required: false
+        default: ''
+  push:
+    paths:
+      - .github/facade.yml
+      - .github/facade/**
+      - .github/workflows/facade-pages-release.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: facade-pages-${{ github.repository }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event_name != 'push' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - name: Check out the site configuration branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v6
+      - name: Delay cancellation test run
+        if: inputs.delay_seconds != '' && inputs.delay_seconds != '0'
+        run: sleep ${{ inputs.delay_seconds }}
+      - name: Build the complete Facade site
+        id: facade
+        uses: Zachery-Liu/Facade@aed1460544a7af544c0f81394ef8f5e151f8a861
+        with:
+          config: .github/facade.yml
+          base-path: ${{ inputs.base_path || steps.pages.outputs.base_path || '/' }}
+          out-dir: .facade-dist
+          token: ${{ github.token }}
+      - name: Upload the complete Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ steps.facade.outputs.output-path }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

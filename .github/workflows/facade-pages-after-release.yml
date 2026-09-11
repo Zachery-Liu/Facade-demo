@@ -1,0 +1,67 @@
+name: Validate Facade chained Pages publishing
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: facade-pages-${{ github.repository }}
+  cancel-in-progress: true
+
+jobs:
+  release-assets:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create and publish a complete release
+        run: |
+          printf 'Facade chained release asset\n' > FacadeDemo-2.0.0-linux-x64.tar.gz
+          gh release create v2.0.0 FacadeDemo-2.0.0-linux-x64.tar.gz --title 'Facade demo v2.0.0' --notes 'T05b chained workflow validation.'
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  facade:
+    needs: release-assets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - name: Check out the site configuration branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v6
+      - name: Build after all release assets exist
+        id: facade
+        uses: Zachery-Liu/Facade@aed1460544a7af544c0f81394ef8f5e151f8a861
+        with:
+          config: .github/facade.yml
+          base-path: ${{ steps.pages.outputs.base_path || '/' }}
+          out-dir: .facade-dist
+          token: ${{ github.token }}
+      - name: Upload the complete Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ${{ steps.facade.outputs.output-path }}
+
+  deploy:
+    needs: facade
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
