@@ -39,7 +39,7 @@ jobs:
         uses: actions/configure-pages@v6
       - name: Build after all release assets exist
         id: facade
-        uses: Zachery-Liu/Facade@aed1460544a7af544c0f81394ef8f5e151f8a861
+        uses: Zachery-Liu/Facade@5fedf6b059efbfa979ab72f894dd072f2d76f83e
         with:
           config: .github/facade.yml
           base-path: ${{ steps.pages.outputs.base_path || '/' }}
