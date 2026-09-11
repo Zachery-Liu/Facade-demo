@@ -20,8 +20,10 @@ jobs:
         uses: actions/checkout@v7
       - name: Create and publish a complete release
         run: |
-          printf 'Facade chained release asset\n' > FacadeDemo-2.0.0-linux-x64.tar.gz
-          gh release create v2.0.0 FacadeDemo-2.0.0-linux-x64.tar.gz --title 'Facade demo v2.0.0' --notes 'T05b chained workflow validation.'
+          printf 'Facade chained Linux release asset\n' > FacadeDemo-5.0.0-linux-x64.tar.gz
+          printf 'Facade chained macOS release asset\n' > FacadeDemo-5.0.0-macos-arm64.dmg
+          printf 'Facade chained Windows release asset\n' > FacadeDemo-5.0.0-windows-x64.exe
+          gh release create v5.0.0 FacadeDemo-5.0.0-linux-x64.tar.gz FacadeDemo-5.0.0-macos-arm64.dmg FacadeDemo-5.0.0-windows-x64.exe --title 'Facade demo v5.0.0' --notes 'T05b chained workflow validation with complete platform assets.'
         env:
           GH_TOKEN: ${{ github.token }}
 
