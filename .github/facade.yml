@@ -2,3 +2,30 @@ schema: 1
 repository: Zachery-Liu/Facade-demo
 release:
   strategy: github-latest
+product:
+  name: Facade Demo
+  description: A live demonstration of Facade turning a GitHub Release into a clear download experience for humans and agents.
+theme:
+  name: product
+  appearance: auto
+  accent: '#5b5bd6'
+links:
+  - label: Facade project
+    url: https://github.com/Zachery-Liu/Facade
+  - label: GitHub Releases
+    url: https://github.com/Zachery-Liu/Facade-demo/releases
+downloads:
+  auto: true
+  rules:
+    - match: '*-linux-x64.tar.gz'
+      set:
+        label: Linux x64 archive
+        priority: 10
+    - match: '*-macos-arm64.dmg'
+      set:
+        label: macOS Apple Silicon installer
+        priority: 20
+    - match: '*-windows-x64.exe'
+      set:
+        label: Windows x64 installer
+        priority: 20
